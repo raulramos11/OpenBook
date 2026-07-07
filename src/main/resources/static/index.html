@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>OpenBook</title>
+	<link rel="icon" type="image/svg+xml" href="/favicon.svg?v=1">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="/styles.css?v=2">
+</head>
+<body>
+	<header class="topbar">
+		<a class="brand" href="/">
+			<span class="brand-mark">OB</span>
+			<span>OpenBook</span>
+		</a>
+
+		<nav class="nav-links" aria-label="Navegacao principal">
+			<a href="#busca">Busca</a>
+			<a href="#acervo">Acervo</a>
+			<a href="#fontes">Fontes</a>
+		</nav>
+	</header>
+
+	<main>
+		<section class="search-workbench" id="busca">
+			<div class="search-copy">
+				<p class="eyebrow">Acervo aberto</p>
+				<h1>Encontre livros e veja se existe uma versao gratuita.</h1>
+				<p class="intro">Uma busca limpa para comparar titulo, autor, fonte e disponibilidade sem transformar a experiencia em uma livraria cheia de ruido.</p>
+
+				<form class="search-form" id="searchForm">
+					<label class="sr-only" for="searchInput">Buscar livros</label>
+					<input id="searchInput" name="term" type="search" placeholder="Digite titulo, autor ou tema" autocomplete="off">
+					<button type="submit">
+						Buscar
+					</button>
+				</form>
+
+				<div class="segmented-control" aria-label="Filtro de disponibilidade">
+					<button class="active" type="button" data-access="ALL">Todos</button>
+					<button type="button" data-access="FREE">Gratuitos</button>
+					<button type="button" data-access="PAID">Pagos</button>
+					<button type="button" data-access="UNKNOWN">A verificar</button>
+				</div>
+			</div>
+
+			<aside class="desk-visual" aria-label="Mesa com livros">
+				<div class="shelf-line"></div>
+				<div class="standing-book book-a"></div>
+				<div class="standing-book book-b"></div>
+				<div class="standing-book book-c"></div>
+				<div class="open-book">
+					<div class="page left-page"></div>
+					<div class="page right-page"></div>
+				</div>
+			</aside>
+		</section>
+
+		<section class="results-section" id="acervo">
+			<div class="section-heading">
+				<div>
+					<p class="eyebrow">Selecao inicial</p>
+					<h2>Livros para validar o visual</h2>
+				</div>
+				<p class="result-count" id="resultCount">0 livros</p>
+			</div>
+
+			<div class="book-grid" id="bookGrid" aria-live="polite"></div>
+		</section>
+
+		<section class="source-section" id="fontes">
+			<div>
+				<p class="eyebrow">Proximas fontes</p>
+				<h2>Integracoes planejadas</h2>
+			</div>
+
+			<div class="source-list">
+				<span>Open Library</span>
+				<span>Google Books</span>
+				<span>Dominio Publico</span>
+				<span>Project Gutenberg</span>
+			</div>
+		</section>
+	</main>
+
+	<script src="/app.js?v=2"></script>
+</body>
+</html>

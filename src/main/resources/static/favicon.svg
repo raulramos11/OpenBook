@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="OpenBook">
+	<rect width="64" height="64" rx="12" fill="#24372f"/>
+	<path d="M14 18c7 0 12 1.6 18 5.2v28c-5.8-3.4-11-5.2-18-5.2V18Z" fill="#fffdf7"/>
+	<path d="M50 18c-7 0-12 1.6-18 5.2v28c5.8-3.4 11-5.2 18-5.2V18Z" fill="#f7f5ef"/>
+	<path d="M32 23.2v28" stroke="#d6d0c2" stroke-width="2" stroke-linecap="round"/>
+	<path d="M18 26.5c3.9.3 7.2 1.2 10.5 2.8" stroke="#d6d0c2" stroke-width="2" stroke-linecap="round"/>
+	<path d="M18 34c3.9.3 7.2 1.2 10.5 2.8" stroke="#d6d0c2" stroke-width="2" stroke-linecap="round"/>
+	<path d="M46 17.8v24.5l-4.4-3.2-4.4 3.2V20.5c2.6-1.2 5.4-2.1 8.8-2.7Z" fill="#a45d46"/>
+	<path d="M35.5 29.2c2.3-1.1 4.7-1.8 7.5-2.2" stroke="#f1d8cc" stroke-width="2" stroke-linecap="round"/>
+	<path d="M14 46c7 0 12.2 1.8 18 5.2 5.8-3.4 11-5.2 18-5.2" fill="none" stroke="#d6d0c2" stroke-width="2" stroke-linecap="round"/>
+</svg>
