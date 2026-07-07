@@ -411,6 +411,22 @@ h2 {
 	overflow-wrap: anywhere;
 }
 
+.book-cover.has-image {
+	padding: 0;
+	background: var(--line);
+	box-shadow: none;
+}
+
+.book-cover.has-image::before {
+	display: none;
+}
+
+.book-cover img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
 .tone-moss {
 	background: linear-gradient(140deg, #31483e, #718269);
 }
