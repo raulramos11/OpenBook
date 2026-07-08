@@ -2,6 +2,7 @@ package com.MageLab.OpenBook.controller;
 
 import com.MageLab.OpenBook.model.BookSearchPage;
 import com.MageLab.OpenBook.service.BookService;
+import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -21,9 +22,15 @@ public class BookController {
 	public BookSearchPage search(
 			@RequestParam(defaultValue = "") String term,
 			@RequestParam(defaultValue = "ALL") String access,
+			@RequestParam(defaultValue = "ALL") String source,
 			@RequestParam(defaultValue = "1") int page,
 			@RequestParam(defaultValue = "18") int size
 	) {
-		return bookService.searchPage(term, access, page, size);
+		return bookService.searchPage(term, access, source, page, size);
+	}
+
+	@GetMapping("/sources")
+	public List<String> sources() {
+		return bookService.sourceNames();
 	}
 }

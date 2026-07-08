@@ -8,17 +8,22 @@ import com.MageLab.OpenBook.service.source.BookSourceClient;
 import com.MageLab.OpenBook.service.source.BookSourceResult;
 import java.text.Normalizer;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
 public class BookService {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(BookService.class);
 	private static final Pattern DIACRITICS = Pattern.compile("\\p{M}+");
 	private static final String DEFAULT_SEARCH_TERM = "literatura brasileira";
 	private static final int DEFAULT_PAGE_SIZE = 18;
@@ -32,6 +37,10 @@ public class BookService {
 	public BookService(BookRepository bookRepository, List<BookSourceClient> bookSourceClients) {
 		this.bookRepository = bookRepository;
 		this.bookSourceClients = bookSourceClients;
+		LOGGER.info(
+				"Fontes externas carregadas: {}",
+				bookSourceClients.stream().map(source -> source.getClass().getSimpleName()).toList()
+		);
 	}
 
 	public BookService(BookRepository bookRepository) {
@@ -43,11 +52,16 @@ public class BookService {
 	}
 
 	public BookSearchPage searchPage(String term, String access, int page, int size) {
+		return searchPage(term, access, "ALL", page, size);
+	}
+
+	public BookSearchPage searchPage(String term, String access, String source, int page, int size) {
 		int safePage = Math.max(page, 1);
 		int safeSize = Math.min(Math.max(size, 1), MAX_PAGE_SIZE);
 		String normalizedTerm = normalize(term);
 		AccessType selectedAccess = parseAccess(access);
-		BookSearchPage externalPage = searchExternalBooks(term, selectedAccess, safePage, safeSize);
+		String selectedSource = source == null ? "ALL" : source.trim();
+		BookSearchPage externalPage = searchExternalBooks(term, selectedAccess, selectedSource, safePage, safeSize);
 
 		if (externalPage.totalItems() > 0) {
 			return externalPage;
@@ -56,20 +70,35 @@ public class BookService {
 		List<Book> localBooks = bookRepository.findAll().stream()
 				.filter(book -> matchesTerm(book, normalizedTerm))
 				.filter(book -> matchesAccess(book, selectedAccess))
+				.filter(book -> matchesSource(book.source(), selectedSource))
 				.toList();
 
 		return localPage(localBooks, safePage, safeSize);
 	}
 
-	private BookSearchPage searchExternalBooks(String term, AccessType selectedAccess, int page, int size) {
-		if (bookSourceClients.isEmpty()) {
+	public List<String> sourceNames() {
+		Set<String> names = new LinkedHashSet<>();
+
+		bookSourceClients.stream()
+				.filter(BookSourceClient::isEnabled)
+				.map(BookSourceClient::sourceName)
+				.filter(name -> !name.isBlank())
+				.forEach(names::add);
+
+		return new ArrayList<>(names);
+	}
+
+	private BookSearchPage searchExternalBooks(String term, AccessType selectedAccess, String selectedSource, int page, int size) {
+		List<BookSourceClient> selectedClients = selectedClients(selectedSource);
+
+		if (selectedClients.isEmpty()) {
 			return BookSearchPage.of(List.of(), page, size, 0);
 		}
 
 		String query = term == null || term.isBlank() ? DEFAULT_SEARCH_TERM : term.trim();
 
 		if (selectedAccess != null) {
-			return searchFilteredExternalBooks(query, selectedAccess, page, size);
+			return searchFilteredExternalBooks(query, selectedAccess, selectedClients, page, size);
 		}
 
 		Map<String, Book> booksByKey = new LinkedHashMap<>();
@@ -78,11 +107,16 @@ public class BookService {
 		int targetEnd = targetStart + size;
 		long sourceStart = 0;
 
-		for (BookSourceClient bookSourceClient : bookSourceClients) {
+		for (BookSourceClient bookSourceClient : selectedClients) {
 			BookSourceResult countResult = bookSourceClient.search(query, 0, 0);
 			long sourceTotal = countResult.totalItems();
 			long sourceEnd = sourceStart + sourceTotal;
 			totalItems += sourceTotal;
+			LOGGER.debug(
+					"Fonte {} retornou total estimado de {} item(ns)",
+					bookSourceClient.getClass().getSimpleName(),
+					sourceTotal
+			);
 
 			if (targetEnd > sourceStart && targetStart < sourceEnd && booksByKey.size() < size) {
 				int sourceOffset = (int) Math.max(0, targetStart - sourceStart);
@@ -100,10 +134,16 @@ public class BookService {
 		return BookSearchPage.of(booksByKey.values().stream().toList(), page, size, totalItems);
 	}
 
-	private BookSearchPage searchFilteredExternalBooks(String query, AccessType selectedAccess, int page, int size) {
+	private BookSearchPage searchFilteredExternalBooks(
+			String query,
+			AccessType selectedAccess,
+			List<BookSourceClient> selectedClients,
+			int page,
+			int size
+	) {
 		Map<String, Book> booksByKey = new LinkedHashMap<>();
 
-		for (BookSourceClient bookSourceClient : bookSourceClients) {
+		for (BookSourceClient bookSourceClient : selectedClients) {
 			BookSourceResult countResult = bookSourceClient.search(query, 0, 0);
 			long sourceTotal = countResult.totalItems();
 			int offset = 0;
@@ -150,6 +190,20 @@ public class BookService {
 
 	private boolean matchesAccess(Book book, AccessType selectedAccess) {
 		return selectedAccess == null || book.accessType() == selectedAccess;
+	}
+
+	private boolean matchesSource(String source, String selectedSource) {
+		return selectedSource == null
+				|| selectedSource.isBlank()
+				|| "ALL".equalsIgnoreCase(selectedSource)
+				|| source != null && source.equalsIgnoreCase(selectedSource);
+	}
+
+	private List<BookSourceClient> selectedClients(String selectedSource) {
+		return bookSourceClients.stream()
+				.filter(BookSourceClient::isEnabled)
+				.filter(source -> matchesSource(source.sourceName(), selectedSource))
+				.toList();
 	}
 
 	private String deduplicationKey(Book book) {

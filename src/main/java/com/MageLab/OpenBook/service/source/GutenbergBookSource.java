@@ -83,6 +83,11 @@ public class GutenbergBookSource extends BookSourceSupport implements BookSource
 		return new BookSourceResult(books, totalItems);
 	}
 
+	@Override
+	public String sourceName() {
+		return SOURCE;
+	}
+
 	private String authors(JsonNode item) {
 		JsonNode authors = item.path("authors");
 

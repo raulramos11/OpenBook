@@ -220,6 +220,33 @@ h2 {
 	border-color: var(--wine);
 }
 
+.source-filter {
+	display: inline-flex;
+	align-items: center;
+	gap: 10px;
+	margin-top: 14px;
+	color: var(--muted);
+	font-size: 0.94rem;
+	font-weight: 600;
+}
+
+.source-filter select {
+	min-height: 40px;
+	min-width: 210px;
+	padding: 0 36px 0 12px;
+	color: var(--forest);
+	background: rgba(255, 253, 247, 0.82);
+	border: 1px solid var(--line);
+	border-radius: 8px;
+	outline: 0;
+	cursor: pointer;
+}
+
+.source-filter select:focus {
+	border-color: var(--forest);
+	box-shadow: 0 0 0 3px rgba(36, 55, 47, 0.12);
+}
+
 .desk-visual {
 	position: relative;
 	min-height: 360px;
@@ -645,6 +672,16 @@ h2 {
 
 	.search-form button {
 		min-height: 52px;
+	}
+
+	.source-filter {
+		align-items: flex-start;
+		flex-direction: column;
+		width: 100%;
+	}
+
+	.source-filter select {
+		width: 100%;
 	}
 
 	.open-book {

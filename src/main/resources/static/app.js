@@ -3,11 +3,13 @@ const searchInput = document.querySelector("#searchInput");
 const bookGrid = document.querySelector("#bookGrid");
 const resultCount = document.querySelector("#resultCount");
 const filterButtons = document.querySelectorAll("[data-access]");
+const sourceFilter = document.querySelector("#sourceFilter");
 const pagination = document.querySelector("#pagination");
 
 const state = {
 	term: "",
 	access: "ALL",
+	source: "ALL",
 	page: 1,
 	size: 18
 };
@@ -29,10 +31,51 @@ filterButtons.forEach((button) => {
 	});
 });
 
+sourceFilter.addEventListener("change", () => {
+	state.source = sourceFilter.value;
+	state.page = 1;
+	loadBooks();
+});
+
+async function loadSources() {
+	try {
+		const response = await fetch("/api/books/sources");
+
+		if (!response.ok) {
+			throw new Error("Falha ao buscar fontes");
+		}
+
+		const sources = await response.json();
+		renderSourceOptions(sources);
+	} catch (error) {
+		renderSourceOptions([]);
+	}
+}
+
+function renderSourceOptions(sources) {
+	sourceFilter.replaceChildren(createSourceOption("ALL", "Todas as fontes"));
+
+	sources.forEach((source) => {
+		if (!source) {
+			return;
+		}
+
+		sourceFilter.append(createSourceOption(source, source));
+	});
+}
+
+function createSourceOption(value, label) {
+	const option = document.createElement("option");
+	option.value = value;
+	option.textContent = label;
+	return option;
+}
+
 async function loadBooks() {
 	const params = new URLSearchParams({
 		term: state.term,
 		access: state.access,
+		source: state.source,
 		page: state.page,
 		size: state.size
 	});
@@ -228,4 +271,5 @@ function shortTitle(title) {
 	return title.length > 34 ? `${title.slice(0, 31)}...` : title;
 }
 
+loadSources();
 loadBooks();

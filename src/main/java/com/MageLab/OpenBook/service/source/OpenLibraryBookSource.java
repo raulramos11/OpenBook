@@ -73,6 +73,11 @@ public class OpenLibraryBookSource extends BookSourceSupport implements BookSour
 		}
 	}
 
+	@Override
+	public String sourceName() {
+		return SOURCE;
+	}
+
 	private AccessType accessType(JsonNode item) {
 		if ("public".equalsIgnoreCase(text(item, "ebook_access")) || item.path("public_scan_b").asBoolean(false)) {
 			return AccessType.FREE;

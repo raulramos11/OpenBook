@@ -121,6 +121,16 @@ public class GoogleBooksSource extends BookSourceSupport implements BookSourceCl
 		return new BookSourceResult(books, total);
 	}
 
+	@Override
+	public String sourceName() {
+		return SOURCE;
+	}
+
+	@Override
+	public boolean isEnabled() {
+		return !apiKey.isBlank();
+	}
+
 	private AccessType accessType(JsonNode saleInfo, JsonNode accessInfo) {
 		String saleability = text(saleInfo, "saleability");
 		String viewability = text(accessInfo, "viewability");

@@ -7,6 +7,7 @@ import com.MageLab.OpenBook.model.AccessType;
 import com.MageLab.OpenBook.model.Book;
 import com.MageLab.OpenBook.model.BookSearchPage;
 import com.MageLab.OpenBook.repository.BookRepository;
+import com.MageLab.OpenBook.service.source.BookSourceClient;
 import com.MageLab.OpenBook.service.source.BookSourceResult;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -99,5 +100,60 @@ class BookServiceTests {
 		assertEquals(2, page.totalItems());
 		assertEquals(2, page.totalPages());
 		assertEquals(List.of(secondBook), page.books());
+	}
+
+	@Test
+	void searchPageCanFilterByExternalSource() {
+		Book archiveBook = new Book(
+				201L,
+				"Livro Arquivo",
+				"Autor",
+				"Resumo",
+				"Tema",
+				AccessType.FREE,
+				"Internet Archive",
+				"moss",
+				"https://archive.org/details/livro",
+				""
+		);
+		Book openLibraryBook = new Book(
+				202L,
+				"Livro Biblioteca",
+				"Autor",
+				"Resumo",
+				"Tema",
+				AccessType.FREE,
+				"Open Library",
+				"wine",
+				"https://openlibrary.org/works/example",
+				""
+		);
+		BookService service = new BookService(
+				new BookRepository(),
+				List.of(source("Internet Archive", archiveBook), source("Open Library", openLibraryBook))
+		);
+
+		BookSearchPage page = service.searchPage("livro", "ALL", "Internet Archive", 1, 18);
+
+		assertEquals(1, page.totalItems());
+		assertEquals(List.of(archiveBook), page.books());
+	}
+
+	private BookSourceClient source(String sourceName, Book book) {
+		return new BookSourceClient() {
+			@Override
+			public BookSourceResult search(String term, int offset, int limit) {
+				if (limit <= 0) {
+					return new BookSourceResult(List.of(), 1);
+				}
+
+				return new BookSourceResult(List.of(book), 1);
+			}
+
+			@Override
+			public String sourceName() {
+				return sourceName;
+			}
+		};
 	}
 }
