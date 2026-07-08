@@ -1,0 +1,7 @@
+.git
+.gradle
+build
+*.log
+openbook-*.log
+.idea
+.vscode
