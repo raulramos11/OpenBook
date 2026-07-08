@@ -480,6 +480,16 @@ h2 {
 	font-size: 0.84rem;
 }
 
+.book-source-link {
+	display: block;
+	color: var(--forest);
+	font-weight: 700;
+}
+
+.book-source-link:hover {
+	text-decoration: underline;
+}
+
 .availability {
 	display: inline-flex;
 	align-items: center;
@@ -512,6 +522,47 @@ h2 {
 	background: var(--surface);
 	border: 1px solid var(--line);
 	border-radius: 8px;
+}
+
+.pagination {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	margin-top: 28px;
+}
+
+.pagination button {
+	min-width: 42px;
+	min-height: 38px;
+	padding: 0 12px;
+	color: var(--forest);
+	background: var(--surface);
+	border: 1px solid var(--line);
+	border-radius: 8px;
+	cursor: pointer;
+}
+
+.pagination button:hover:not(:disabled),
+.pagination button.active {
+	color: #fffdf7;
+	background: var(--forest);
+	border-color: var(--forest);
+}
+
+.pagination button:disabled {
+	color: rgba(98, 107, 99, 0.52);
+	cursor: not-allowed;
+}
+
+.pagination-gap {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 28px;
+	min-height: 38px;
+	color: var(--muted);
 }
 
 .source-section {

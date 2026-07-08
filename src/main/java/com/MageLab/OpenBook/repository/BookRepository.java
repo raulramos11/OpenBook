@@ -17,7 +17,9 @@ public class BookRepository {
 					"Literatura brasileira",
 					AccessType.FREE,
 					"Dominio Publico",
-					"moss"
+					"moss",
+					"",
+					""
 			),
 			new Book(
 					2L,
@@ -27,7 +29,9 @@ public class BookRepository {
 					"Romance",
 					AccessType.FREE,
 					"Biblioteca Brasiliana",
-					"wine"
+					"wine",
+					"",
+					""
 			),
 			new Book(
 					3L,
@@ -37,7 +41,9 @@ public class BookRepository {
 					"Fantasia",
 					AccessType.PAID,
 					"Editora",
-					"navy"
+					"navy",
+					"",
+					""
 			),
 			new Book(
 					4L,
@@ -47,7 +53,9 @@ public class BookRepository {
 					"Programacao",
 					AccessType.PAID,
 					"Loja parceira",
-					"slate"
+					"slate",
+					"",
+					""
 			),
 			new Book(
 					5L,
@@ -57,7 +65,9 @@ public class BookRepository {
 					"Infantil",
 					AccessType.FREE,
 					"Project Gutenberg",
-					"clay"
+					"clay",
+					"https://www.gutenberg.org/",
+					""
 			),
 			new Book(
 					6L,
@@ -67,7 +77,9 @@ public class BookRepository {
 					"Arquitetura de software",
 					AccessType.UNKNOWN,
 					"A verificar",
-					"olive"
+					"olive",
+					"",
+					""
 			)
 	);
 

@@ -10,7 +10,9 @@ public record Book(
 		String subject,
 		AccessType accessType,
 		String source,
-		String coverTone
+		String coverTone,
+		String externalUrl,
+		String coverUrl
 ) {
 	@JsonProperty("accessLabel")
 	public String accessLabel() {
