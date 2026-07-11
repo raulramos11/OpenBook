@@ -3,13 +3,13 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<meta name="description" content="OpenBook e uma aplicacao web para buscar e organizar livros, com catalogo inicial, pesquisa por palavras-chave e filtros por disponibilidade.">
+	<meta name="description" content="Busque livros em catalogos legais, filtre por data, nota e disponibilidade, compare popularidade e avalie com a comunidade OpenBook.">
 	<title>OpenBook</title>
 	<link rel="icon" type="image/svg+xml" href="/favicon.svg?v=1">
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
-	<link rel="stylesheet" href="/styles.css?v=3">
+	<link rel="stylesheet" href="/styles.css?v=6">
 </head>
 <body>
 	<header class="topbar">
@@ -30,7 +30,7 @@
 			<div class="search-copy">
 				<p class="eyebrow">Acervo aberto</p>
 				<h1>Encontre livros e veja se existe uma versao gratuita.</h1>
-				<p class="intro">Uma busca limpa para comparar titulo, autor, fonte e disponibilidade sem transformar a experiencia em uma livraria cheia de ruido.</p>
+				<p class="intro">Compare fontes legais, disponibilidade, popularidade e notas publicas. Refine por data e avaliacao e compartilhe sua propria nota com a comunidade.</p>
 
 				<form class="search-form" id="searchForm">
 					<label class="sr-only" for="searchInput">Buscar livros</label>
@@ -41,18 +41,65 @@
 				</form>
 
 				<div class="segmented-control" aria-label="Filtro de disponibilidade">
-					<button class="active" type="button" data-access="ALL">Todos</button>
-					<button type="button" data-access="FREE">Gratuitos</button>
-					<button type="button" data-access="PAID">Pagos</button>
-					<button type="button" data-access="UNKNOWN">A verificar</button>
+					<button class="active" type="button" data-access="ALL" aria-pressed="true">Todos</button>
+					<button type="button" data-access="FREE" aria-pressed="false">Gratuitos</button>
+					<button type="button" data-access="PAID" aria-pressed="false">Pagos</button>
+					<button type="button" data-access="UNKNOWN" aria-pressed="false">A verificar</button>
 				</div>
 
-				<label class="source-filter" for="sourceFilter">
-					<span>Fonte</span>
-					<select id="sourceFilter" name="source">
-						<option value="ALL">Todas as fontes</option>
-					</select>
-				</label>
+				<div class="filter-toolbar" aria-label="Filtros da busca">
+					<label class="source-filter" for="sourceFilter">
+						<span>Fonte</span>
+						<select id="sourceFilter" name="source">
+							<option value="ALL">Todas as fontes</option>
+						</select>
+					</label>
+
+					<details class="advanced-filters" id="advancedFilters">
+						<summary>
+							Mais filtros
+							<span class="filter-count" id="activeFilterCount" hidden>0</span>
+						</summary>
+
+						<div class="advanced-filter-grid">
+							<label class="filter-field" for="yearFrom">
+								<span>Ano de</span>
+								<input id="yearFrom" name="yearFrom" type="number" inputmode="numeric" min="1000" max="2100" placeholder="Ex.: 1900">
+							</label>
+
+							<label class="filter-field" for="yearTo">
+								<span>Ano ate</span>
+								<input id="yearTo" name="yearTo" type="number" inputmode="numeric" min="1000" max="2100" placeholder="Ex.: 2026">
+							</label>
+
+							<label class="filter-field filter-field-rating" for="minRating">
+								<span>Nota minima</span>
+								<select id="minRating" name="minRating">
+									<option value="">Qualquer nota</option>
+									<option value="3">3 ou mais</option>
+									<option value="4">4 ou mais</option>
+									<option value="4.5">4,5 ou mais</option>
+								</select>
+							</label>
+
+							<label class="toggle-filter" for="hasCover">
+								<input id="hasCover" name="hasCover" type="checkbox">
+								<span>Somente com capa</span>
+							</label>
+
+							<label class="toggle-filter" for="multipleSources">
+								<input id="multipleSources" name="multipleSources" type="checkbox">
+								<span>Em multiplas fontes</span>
+							</label>
+
+							<div class="filter-actions">
+								<button id="clearFilters" type="button">Limpar filtros</button>
+							</div>
+
+							<p class="filter-feedback" id="filterFeedback" role="status" aria-live="polite"></p>
+						</div>
+					</details>
+				</div>
 			</div>
 
 			<aside class="desk-visual" aria-label="Mesa com livros">
@@ -71,12 +118,25 @@
 			<div class="section-heading">
 				<div>
 					<p class="eyebrow">Selecao inicial</p>
-					<h2>Livros Encontrados: </h2>
+					<h2>Resultados</h2>
 				</div>
-				<p class="result-count" id="resultCount"></p>
+				<div class="result-tools">
+					<p class="result-count" id="resultCount"></p>
+					<label class="sort-control" for="sortFilter">
+						<span>Ordenar por</span>
+						<select id="sortFilter" name="sort">
+							<option value="RELEVANCE">Relevancia</option>
+							<option value="POPULAR">Mais populares</option>
+							<option value="RATING">Melhor avaliados</option>
+							<option value="NEWEST">Publicados mais recentemente</option>
+							<option value="OLDEST">Publicados ha mais tempo</option>
+							<option value="TITLE">Titulo de A a Z</option>
+						</select>
+					</label>
+				</div>
 			</div>
 
-			<div class="book-grid" id="bookGrid" aria-live="polite"></div>
+			<div class="book-grid" id="bookGrid" aria-live="polite" aria-busy="false"></div>
 			<nav class="pagination" id="pagination" aria-label="Paginas de resultados"></nav>
 		</section>
 
@@ -90,10 +150,18 @@
 				<span>Open Library</span>
 				<span>Project Gutenberg</span>
 				<span>Internet Archive</span>
+				<span>Google Books</span>
 			</div>
 		</section>
 	</main>
 
-	<script src="/app.js?v=3"></script>
+	<dialog class="book-dialog" id="bookDialog" aria-labelledby="bookDialogTitle">
+		<div class="book-dialog-shell">
+			<button class="book-dialog-close" id="bookDialogClose" type="button" aria-label="Fechar detalhes do livro">Fechar</button>
+			<div id="bookDialogContent"></div>
+		</div>
+	</dialog>
+
+	<script src="/app.js?v=6"></script>
 </body>
 </html>

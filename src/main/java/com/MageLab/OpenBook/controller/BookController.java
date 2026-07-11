@@ -23,10 +23,28 @@ public class BookController {
 			@RequestParam(defaultValue = "") String term,
 			@RequestParam(defaultValue = "ALL") String access,
 			@RequestParam(defaultValue = "ALL") String source,
+			@RequestParam(defaultValue = "RELEVANCE") String sort,
+			@RequestParam(required = false) Integer yearFrom,
+			@RequestParam(required = false) Integer yearTo,
+			@RequestParam(required = false) Double minRating,
+			@RequestParam(defaultValue = "false") boolean hasCover,
+			@RequestParam(defaultValue = "false") boolean multipleSources,
 			@RequestParam(defaultValue = "1") int page,
 			@RequestParam(defaultValue = "18") int size
 	) {
-		return bookService.searchPage(term, access, source, page, size);
+		return bookService.searchPage(
+				term,
+				access,
+				source,
+				sort,
+				yearFrom,
+				yearTo,
+				minRating,
+				hasCover,
+				multipleSources,
+				page,
+				size
+		);
 	}
 
 	@GetMapping("/sources")

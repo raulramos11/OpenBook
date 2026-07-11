@@ -63,21 +63,26 @@ public class InternetArchiveBookSource extends BookSourceSupport implements Book
 
 					String identifier = text(item, "identifier");
 					String itemUrl = identifier.isBlank() ? "" : "https://archive.org/details/" + identifier;
-					String downloads = item.path("downloads").asText("");
+					long downloadCount = item.path("downloads").asLong(0);
+					String downloads = downloadCount > 0 ? String.valueOf(downloadCount) : "";
 					String summary = downloads.isBlank()
 							? "Texto encontrado no acervo do Internet Archive."
 							: "Texto encontrado no acervo do Internet Archive. Downloads registrados: " + downloads + ".";
+					String publishedDate = text(item, "date");
 
 					books.add(book(
 							SOURCE,
 							identifier,
 							text(item, "title"),
 							creator(item),
-							limit(text(item, "description").isBlank() ? summary : text(item, "description"), 180),
+							limit(text(item, "description").isBlank() ? summary : text(item, "description"), 1800),
 							subject(item),
 							AccessType.FREE,
 							itemUrl,
-							identifier.isBlank() ? "" : "https://archive.org/services/img/" + identifier
+							identifier.isBlank() ? "" : "https://archive.org/services/img/" + identifier,
+							publishedDate,
+							"",
+							downloadCount
 					));
 				}
 
@@ -104,7 +109,7 @@ public class InternetArchiveBookSource extends BookSourceSupport implements Book
 	private String searchUrl(String term, int page, int rows) {
 		return "https://archive.org/advancedsearch.php?q="
 				+ encode("(" + term + ") AND mediatype:(texts) AND -access-restricted-item:(true)")
-				+ "&fl[]=identifier&fl[]=title&fl[]=creator&fl[]=description&fl[]=subject&fl[]=downloads"
+				+ "&fl[]=identifier&fl[]=title&fl[]=creator&fl[]=description&fl[]=subject&fl[]=downloads&fl[]=date"
 				+ "&rows=" + rows
 				+ "&page=" + page
 				+ "&output=json";

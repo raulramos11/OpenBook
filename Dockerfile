@@ -3,7 +3,7 @@ FROM eclipse-temurin:21-jdk AS build
 WORKDIR /app
 COPY . .
 
-RUN chmod +x gradlew && ./gradlew bootJar --no-daemon
+RUN chmod +x gradlew && ./gradlew test bootJar --no-daemon
 
 FROM eclipse-temurin:21-jre
 

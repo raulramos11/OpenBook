@@ -22,6 +22,7 @@ dependencies {
 	implementation 'com.fasterxml.jackson.core:jackson-databind'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+	runtimeOnly 'org.postgresql:postgresql'
 	// Selenium: browser headless real para bypassar bloqueios de scraping
 	implementation 'org.seleniumhq.selenium:selenium-java:4.27.0'
 	// WebDriverManager: baixa e gerencia o EdgeDriver automaticamente

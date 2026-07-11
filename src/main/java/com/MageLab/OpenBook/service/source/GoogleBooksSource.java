@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -94,7 +95,7 @@ public class GoogleBooksSource extends BookSourceSupport implements BookSourceCl
 					JsonNode accessInfo = item.path("accessInfo");
 
 					String id = text(item, "id");
-					String description = limit(text(volumeInfo, "description"), 180);
+					String description = limit(text(volumeInfo, "description"), 1800);
 					String summary = description.isBlank() ? googleSummary(saleInfo, accessInfo) : description;
 
 					books.add(book(
@@ -106,7 +107,10 @@ public class GoogleBooksSource extends BookSourceSupport implements BookSourceCl
 							firstText(volumeInfo, "categories"),
 							accessType(saleInfo, accessInfo),
 							text(volumeInfo, "infoLink"),
-							https(volumeInfo.path("imageLinks").path("thumbnail").asText(""))
+							https(volumeInfo.path("imageLinks").path("thumbnail").asText("")),
+							text(volumeInfo, "publishedDate"),
+							rating(volumeInfo),
+							volumeInfo.path("ratingsCount").asLong(0)
 					));
 				}
 
@@ -159,5 +163,24 @@ public class GoogleBooksSource extends BookSourceSupport implements BookSourceCl
 		}
 
 		return "Resultado encontrado no catalogo do Google Books.";
+	}
+
+	private String rating(JsonNode volumeInfo) {
+		if (!volumeInfo.hasNonNull("averageRating")) {
+			return "";
+		}
+
+		double rating = volumeInfo.path("averageRating").asDouble(0);
+		int ratingsCount = volumeInfo.path("ratingsCount").asInt(0);
+
+		if (rating <= 0) {
+			return "";
+		}
+
+		if (ratingsCount > 0) {
+			return String.format(Locale.ROOT, "%.1f/5 (%d)", rating, ratingsCount);
+		}
+
+		return String.format(Locale.ROOT, "%.1f/5", rating);
 	}
 }

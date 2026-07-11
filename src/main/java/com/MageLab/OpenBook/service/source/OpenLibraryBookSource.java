@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
@@ -31,7 +32,7 @@ public class OpenLibraryBookSource extends BookSourceSupport implements BookSour
 		String url = "https://openlibrary.org/search.json?q=" + encode(term)
 				+ "&offset=" + Math.max(offset, 0)
 				+ "&limit=" + safeLimit
-				+ "&fields=key,title,author_name,first_publish_year,subject,ebook_access,public_scan_b,cover_i";
+				+ "&fields=key,title,author_name,first_publish_year,subject,ebook_access,public_scan_b,cover_i,ratings_average,ratings_count,edition_count,readinglog_count,want_to_read_count,already_read_count";
 
 		try {
 			JsonNode root = objectMapper.readTree(get(url));
@@ -59,10 +60,13 @@ public class OpenLibraryBookSource extends BookSourceSupport implements BookSour
 						title,
 						joinTextArray(item, "author_name", "Autor desconhecido"),
 						summary,
-						subject,
-						accessType(item),
-						key.isBlank() ? "" : "https://openlibrary.org" + key,
-						coverUrl
+							subject,
+							accessType(item),
+							key.isBlank() ? "" : "https://openlibrary.org" + key,
+							coverUrl,
+						year,
+						rating(item),
+						popularity(item)
 				));
 			}
 
@@ -88,5 +92,32 @@ public class OpenLibraryBookSource extends BookSourceSupport implements BookSour
 		}
 
 		return AccessType.UNKNOWN;
+	}
+
+	private String rating(JsonNode item) {
+		if (!item.hasNonNull("ratings_average")) {
+			return "";
+		}
+
+		double rating = item.path("ratings_average").asDouble(0);
+		int ratingsCount = item.path("ratings_count").asInt(0);
+
+		if (rating <= 0) {
+			return "";
+		}
+
+		if (ratingsCount > 0) {
+			return String.format(Locale.ROOT, "%.1f/5 (%d)", rating, ratingsCount);
+		}
+
+		return String.format(Locale.ROOT, "%.1f/5", rating);
+	}
+
+	private long popularity(JsonNode item) {
+		return item.path("edition_count").asLong(0)
+				+ item.path("readinglog_count").asLong(0)
+				+ item.path("want_to_read_count").asLong(0)
+				+ item.path("already_read_count").asLong(0)
+				+ item.path("ratings_count").asLong(0);
 	}
 }

@@ -2,6 +2,7 @@ package com.MageLab.OpenBook.service.source;
 
 import com.MageLab.OpenBook.model.AccessType;
 import com.MageLab.OpenBook.model.Book;
+import com.MageLab.OpenBook.model.BookSource;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.net.URI;
 import java.net.URLEncoder;
@@ -114,6 +115,52 @@ abstract class BookSourceSupport {
 			String externalUrl,
 			String coverUrl
 	) {
+		return book(source, key, title, author, summary, subject, accessType, externalUrl, coverUrl, "", "");
+	}
+
+	protected Book book(
+			String source,
+			String key,
+			String title,
+			String author,
+			String summary,
+			String subject,
+			AccessType accessType,
+			String externalUrl,
+			String coverUrl,
+			String publishedDate,
+			String rating
+	) {
+		return book(
+				source,
+				key,
+				title,
+				author,
+				summary,
+				subject,
+				accessType,
+				externalUrl,
+				coverUrl,
+				publishedDate,
+				rating,
+				0
+		);
+	}
+
+	protected Book book(
+			String source,
+			String key,
+			String title,
+			String author,
+			String summary,
+			String subject,
+			AccessType accessType,
+			String externalUrl,
+			String coverUrl,
+			String publishedDate,
+			String rating,
+			long popularity
+	) {
 		return new Book(
 				sourceId(source, key),
 				blankFallback(title, "Titulo desconhecido"),
@@ -124,7 +171,12 @@ abstract class BookSourceSupport {
 				source,
 				coverTone(title),
 				blankFallback(externalUrl, ""),
-				blankFallback(coverUrl, "")
+				blankFallback(coverUrl, ""),
+				blankFallback(publishedDate, ""),
+				blankFallback(rating, ""),
+				List.of(new BookSource(source, blankFallback(externalUrl, ""))),
+				Math.max(popularity, 0),
+				com.MageLab.OpenBook.model.RatingSummary.fromDisplay(rating)
 		);
 	}
 

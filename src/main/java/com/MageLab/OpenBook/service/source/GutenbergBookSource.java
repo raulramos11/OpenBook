@@ -61,11 +61,14 @@ public class GutenbergBookSource extends BookSourceSupport implements BookSource
 							id,
 							text(item, "title"),
 							authors(item),
-							limit(summary, 180),
+							limit(summary, 1800),
 							firstText(item, "subjects"),
 							item.path("copyright").asBoolean(true) ? AccessType.UNKNOWN : AccessType.FREE,
 							htmlUrl.isBlank() ? "https://www.gutenberg.org/ebooks/" + id : htmlUrl,
-							item.path("formats").path("image/jpeg").asText("")
+							item.path("formats").path("image/jpeg").asText(""),
+							"",
+							"",
+							item.path("download_count").asLong(0)
 					));
 				}
 
